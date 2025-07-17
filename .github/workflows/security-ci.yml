@@ -1,0 +1,93 @@
+name: Security CI
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 2. Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: 3. Configurar Cache do Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: 4. Configurar Cache do Sonar
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: 5. Executar Análises de Segurança e Gerar Relatórios
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mvn -B verify \
+            org.owasp:dependency-check-maven:aggregate \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=nerdsufc_gex-api_7f9d2ba3-6395-4a4a-8e2b-1c82b9aa6e0c \
+            -Dsonar.projectName='gex-api'
+
+      # --- INÍCIO DA INTEGRAÇÃO COM DEFECTDOJO ---
+
+      - name: 6. Enviar Relatório do Dependency-Check para o DefectDojo
+        # Garante que o passo só executa se os scans foram bem-sucedidos
+        if: success()
+        uses: jake-le-tesque/defectdojo-action@v2
+        with:
+          # URL e API Key vêm dos secrets do GitHub
+          defectdojo_url: ${{ secrets.DEFECT_DOJO_URL }}
+          defectdojo_api_key: ${{ secrets.DEFECT_DOJO_API_KEY }}
+
+          # Identificação no DefectDojo
+          product_name: "gex-api"
+          engagement_name: "CI Build ${{ github.run_id }}" # Cria um novo engagement para cada build
+
+          # Detalhes do Scan
+          scan_type: "Dependency Check Scan" # Nome exato do parser no DefectDojo
+          file_path: "target/dependency-check-report.xml"
+          auto_create_context: true # Cria o produto e o engagement se não existirem
+
+      - name: 7. Enviar Relatório do SpotBugs para o DefectDojo
+        if: success()
+        uses: jake-le-tesque/defectdojo-action@v2
+        with:
+          defectdojo_url: ${{ secrets.DEFECT_DOJO_URL }}
+          defectdojo_api_key: ${{ secrets.DEFECT_DOJO_API_KEY }}
+
+          product_name: "gex-api"
+          engagement_name: "CI Build ${{ github.run_id }}" # Usa o mesmo engagement da build
+
+          scan_type: "SpotBugs Scan" # Nome exato do parser no DefectDojo
+          file_path: "target/spotbugsXml.xml"
+          auto_create_context: true
+
+      # Opcional: Você pode também fazer upload dos relatórios como artefatos
+      - name: 8. Carregar Artefatos de Relatório
+        if: always() # Executa mesmo se os passos anteriores falharem, para debug
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            target/dependency-check-report.xml
+            target/spotbugsXml.xml
+            target/bom.xml
