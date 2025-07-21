@@ -44,8 +44,8 @@ jobs:
           mvn -B verify \
             org.owasp:dependency-check-maven:aggregate \
             org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=criar projeto e adicionar aqui \
-            -Dsonar.projectName='colmeia-api'
+            -Dsonar.projectKey=api \
+            -Dsonar.projectName='api'
 
       # --- INÍCIO DA INTEGRAÇÃO COM DEFECTDOJO ---
 
@@ -57,7 +57,7 @@ jobs:
             --url "${{ secrets.DEFECT_DOJO_URL }}/api/v2/import-scan/" \
             --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
             --form "scan_type=Dependency Check Scan" \
-            --form "product_name=colmeia-api" \
+            --form "product_name=colmeia-jogos-api" \
             --form "engagement_name=CI Build ${{ github.run_id }}" \
             --form "file=@${{ github.workspace }}/target/dependency-check-report.xml" \
             --form "auto_create_context=true"
@@ -70,7 +70,7 @@ jobs:
             --url "${{ secrets.DEFECT_DOJO_URL }}/api/v2/import-scan/" \
             --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
             --form "scan_type=SpotBugs Scan" \
-            --form "product_name=colmeia-api" \
+            --form "product_name='colmeia-jogos-api'" \
             --form "engagement_name=CI Build ${{ github.run_id }}" \
             --form "file=@${{ github.workspace }}/target/spotbugsXml.xml" \
             --form "auto_create_context=true"
