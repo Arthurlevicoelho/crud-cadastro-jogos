@@ -3,7 +3,7 @@ version: "3.9"
 services:
   postgres:
     image: docker.io/library/postgres:latest
-    container_name: project
+    container_name: colmeia
     restart: always
     ports:
       - "5432:5432"
