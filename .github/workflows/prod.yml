@@ -60,7 +60,7 @@ jobs:
         with:
           image-ref: 'docker.io/arthurlevi/colmeia-jogos:${{ github.sha }}'
           format: 'json'
-          output: 'trivy-results.json' #
+          output: 'trivy-results.json'
         env:
           TRIVY_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           TRIVY_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
@@ -75,7 +75,7 @@ jobs:
             --form "scan_type=Trivy Scan" \
             --form "product_name=colmeia-jogos-api" \
             --form "engagement_name=CI Build ${{ github.run_id }}" \
-            --form "file=@${{ github.workspace }}/trivy-results.sarif" \
+            --form "file=@${{ github.workspace }}/trivy-results.json" \
             --form "auto_create_context=true"
 
   deploy:
