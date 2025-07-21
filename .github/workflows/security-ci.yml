@@ -58,7 +58,7 @@ jobs:
             --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
             --form "scan_type=Dependency Check Scan" \
             --form "product_name=colmeia-jogos-api" \
-            --form "engagement_name=CI Build ${{ github.run_id }}" \
+            --form "engagement_name=CI Build Dependency-Check ${{ github.run_id }}" \
             --form "file=@${{ github.workspace }}/target/dependency-check-report.xml" \
             --form "auto_create_context=true"
 
@@ -71,7 +71,7 @@ jobs:
             --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
             --form "scan_type=SpotBugs Scan" \
             --form "product_name=colmeia-jogos-api" \
-            --form "engagement_name=CI Build ${{ github.run_id }}" \
+            --form "engagement_name=CI Build SpotBugs ${{ github.run_id }}" \
             --form "file=@${{ github.workspace }}/target/spotbugsXml.xml" \
             --form "auto_create_context=true"
 
