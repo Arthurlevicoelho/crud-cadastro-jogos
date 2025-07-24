@@ -1,0 +1,71 @@
+version: "3.7" # Usando uma versão mais recente para melhor suporte
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.26.0
+    container_name: prometheus
+    restart: always
+    volumes:
+      - ./.prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports: # <-- MUDANÇA: Mapeia a porta 9090 do container para a 9090 da sua máquina
+      - "9090:9090"
+    networks: # <-- MUDANÇA: Adiciona o container à nossa nova rede
+      - monitoring-net
+
+  grafana:
+    image: grafana/grafana:9.3.4
+    container_name: grafana
+    restart: always
+    volumes:
+      - ./.grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./.grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    ports: # <-- MUDANÇA: Mapeia a porta 3000 do container para a 3000 da sua máquina
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+    networks: # <-- MUDANÇA: Adiciona o container à nossa nova rede
+      - monitoring-net
+
+  postgres:
+    image: docker.io/library/postgres:latest
+    container_name: colmeia
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./volumes/database:/var/lib/postgresql/data:Z
+    environment:
+      - POSTGRES_USER=colmeia
+      - POSTGRES_PASSWORD=colmeia
+      - POSTGRES_DB=app
+      - TZ=America/Fortaleza
+    networks:
+      - monitoring-net
+
+
+  api:
+    build:
+      context: ./ # <-- MUITO IMPORTANTE: Gere o Build antes com mvn clean package -DskipTests
+      dockerfile: Dockerfile
+    # image: arthurlevi/colmeia-jogos:latest nao esta na ultima versao
+    container_name: api
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/app
+      - DB_USERNAME=colmeia
+      - DB_PASSWORD=colmeia
+    depends_on:
+      - postgres
+    networks:
+      - monitoring-net
+
+
+networks:
+  monitoring-net:
+    driver: bridge
