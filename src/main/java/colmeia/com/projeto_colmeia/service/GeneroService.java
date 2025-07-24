@@ -20,7 +20,7 @@ public class GeneroService extends BaseService<GeneroEntity, UUID>{
         this.generoRepository = generoRepository;
     }
 
-    private ResponseEntity<ResponseModel> save(GeneroEntity genero) {
+    public ResponseEntity<ResponseModel> save(GeneroEntity genero) {
         if (genero != null) {
             GeneroEntity generoEntity = generoRepository.getReferenceById(genero.getId());
 

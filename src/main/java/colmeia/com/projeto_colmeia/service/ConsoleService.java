@@ -19,7 +19,7 @@ public class ConsoleService extends BaseService<ConsoleEntity, UUID> {
         this.consoleRepository = consoleRepository;
     }
 
-    private ResponseEntity<ResponseModel> save(ConsoleEntity console) {
+    public ResponseEntity<ResponseModel> save(ConsoleEntity console) {
         if (console != null) {
             ConsoleEntity consoleEntity = consoleRepository.getReferenceById(console.getId());
 

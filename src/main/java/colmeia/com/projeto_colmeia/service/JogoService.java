@@ -19,7 +19,7 @@ public class JogoService extends BaseService<JogoEntity, UUID> {
         this.jogoRepository = jogoRepository;
     }
 
-    private ResponseEntity<ResponseModel> save(JogoEntity jogo) {
+    public ResponseEntity<ResponseModel> save(JogoEntity jogo) {
         if (jogo != null) {
             JogoEntity jogoEntity = jogoRepository.getReferenceById(jogo.getId());
 
