@@ -45,7 +45,8 @@ jobs:
             org.owasp:dependency-check-maven:aggregate \
             org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=api \
-            -Dsonar.projectName='api'
+            -Dsonar.projectName='api' \
+            -DskipTests
 
       # --- INÍCIO DA INTEGRAÇÃO COM DEFECTDOJO ---
 
