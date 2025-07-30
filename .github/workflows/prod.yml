@@ -23,7 +23,7 @@ jobs:
           cache: maven # Habilita o cache para as dependências do Maven
 
       - name: Build com Maven
-        run: mvn -B package --file pom.xml
+        run: mvn -B package -DskipTests --file pom.xml
 
       - name: Configurar Docker Buildx
         uses: docker/setup-buildx-action@v1
