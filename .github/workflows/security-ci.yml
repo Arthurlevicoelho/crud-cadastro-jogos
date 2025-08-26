@@ -48,6 +48,20 @@ jobs:
             -Dsonar.projectName='api' \
             -DskipTests 
 
+
+      - name: 6. Iniciar a API para o Teste Dinâmico (DAST)
+        run: mvn spring-boot:run &
+
+      - name: 7. Aguardar a API Iniciar
+        run: sleep 45 # Aumentei o tempo para garantir que a API esteja pronta
+
+      - name: 8. Executar o Scan DAST com OWASP ZAP
+        uses: zaproxy/action-api-scan@v0.5.0
+        with:
+          target: 'http://localhost:8080/v3/api-docs'
+          format: 'openapi'
+          report_formats: 'html,xml'
+
       # --- INÍCIO DA INTEGRAÇÃO COM DEFECTDOJO ---
 
       - name: 5. Enviar Relatório do Dependency-Check para o DefectDojo
@@ -74,6 +88,19 @@ jobs:
             --form "product_name=colmeia-jogos-api" \
             --form "engagement_name=CI Build SpotBugs ${{ github.run_id }}" \
             --form "file=@${{ github.workspace }}/target/spotbugsXml.xml" \
+            --form "auto_create_context=true"
+
+      - name: 11. Enviar Relatório do ZAP para o DefectDojo
+        if: success()
+        run: |
+          curl -X POST \
+            --insecure \
+            --url "${{ secrets.DEFECT_DOJO_URL }}/api/v2/import-scan/" \
+            --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
+            --form "scan_type=ZAP Scan" \
+            --form "product_name=colmeia-jogos-api" \
+            --form "engagement_name=CI Build ZAP Scan ${{ github.run_id }}" \
+            --form "file=@${{ github.workspace }}/zap_report.xml" \ # Arquivo XML gerado pelo ZAP
             --form "auto_create_context=true"
 
       # Opcional: Você pode também fazer upload dos relatórios como artefatos
