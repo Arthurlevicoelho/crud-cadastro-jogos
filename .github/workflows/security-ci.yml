@@ -8,6 +8,29 @@ on:
 jobs:
   security-scan:
     runs-on: ubuntu-latest
+
+    # --- INÍCIO DA SEÇÃO ADICIONADA ---
+    # Inicia um container de banco de dados que fica disponível para os passos do job
+    services:
+      # 'postgres' é o nome que damos ao serviço
+      postgres:
+        # Usa a imagem oficial do PostgreSQL
+        image: postgres:15
+        # Variáveis de ambiente para configurar o banco de dados
+        env:
+          POSTGRES_USER: colmeia
+          POSTGRES_PASSWORD: colmeia
+          POSTGRES_DB: db
+        # Opções para garantir que o serviço esteja pronto antes dos passos começarem
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Mapeia a porta 5432 do container para a porta 5432 do runner (host)
+          - 5432:5432
+          
     steps:
       - name: 1. Checkout do código
         uses: actions/checkout@v4
@@ -63,17 +86,28 @@ jobs:
             --form "auto_create_context=true"
 
       - name: 7. Iniciar a API para o Teste Dinâmico (DAST)
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/app
+          DB_USERNAME: colmeia
+          DB_PASSWORD: colmeia
         run: mvn spring-boot:run &
+        
 
-      - name: 8. Aguardar a API Iniciar
-        run: sleep 45
+      - name: 8. Aguardar a API ficar disponível (Health Check)
+        run: |
+          echo "Aguardando a API iniciar..."
+          timeout 120s bash -c 'until curl -s http://localhost:8080/v3/api-docs > /dev/null; do
+            echo -n "."
+            sleep 5
+          done'
+          echo "API iniciada com sucesso!"
 
       - name: 9. Executar o Scan DAST com OWASP ZAP
         uses: zaproxy/action-api-scan@v0.5.0
         with:
           target: 'http://localhost:8080/v3/api-docs'
           format: 'openapi'
-          report_formats: 'html,xml'
+          
 
       - name: 10. Enviar Relatório do ZAP para o DefectDojo
         if: success()
