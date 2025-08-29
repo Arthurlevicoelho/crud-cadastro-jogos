@@ -8,7 +8,9 @@ on:
 jobs:
   security-scan:
     runs-on: ubuntu-latest
-
+    permissions:
+      issues: write     
+      contents: read    
     # --- INÍCIO DA SEÇÃO ADICIONADA ---
     # Inicia um container de banco de dados que fica disponível para os passos do job
     services:
