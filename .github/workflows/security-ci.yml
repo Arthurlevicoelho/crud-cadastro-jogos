@@ -11,26 +11,19 @@ jobs:
     permissions:
       issues: write     
       contents: read    
-    # --- INÍCIO DA SEÇÃO ADICIONADA ---
-    # Inicia um container de banco de dados que fica disponível para os passos do job
     services:
-      # 'postgres' é o nome que damos ao serviço
       postgres:
-        # Usa a imagem oficial do PostgreSQL
         image: postgres:15
-        # Variáveis de ambiente para configurar o banco de dados
         env:
           POSTGRES_USER: colmeia
           POSTGRES_PASSWORD: colmeia
           POSTGRES_DB: app
-        # Opções para garantir que o serviço esteja pronto antes dos passos começarem
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
-          # Mapeia a porta 5432 do container para a porta 5432 do runner (host)
           - 5432:5432
           
     steps:
@@ -69,7 +62,7 @@ jobs:
             --url "${{ secrets.DEFECT_DOJO_URL }}/api/v2/import-scan/" \
             --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
             --form "scan_type=Dependency Check Scan" \
-            --form "product_name=colmeia-jogos-api" \
+            --form "product_name=colmeia-talk" \
             --form "engagement_name=CI Build Dependency-Check" \
             --form "test_title=Dependency-Check Scan - ${{ github.run_id }}" \
             --form "file=@${{ github.workspace }}/target/dependency-check-report.xml" \
@@ -83,7 +76,7 @@ jobs:
             --url "${{ secrets.DEFECT_DOJO_URL }}/api/v2/import-scan/" \
             --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
             --form "scan_type=SpotBugs Scan" \
-            --form "product_name=colmeia-jogos-api" \
+            --form "product_name=colmeia-talk" \
             --form "engagement_name=CI Build SpotBugs" \
             --form "test_title=SpotBugs Scan - ${{ github.run_id }}" \
             --form "file=@${{ github.workspace }}/target/spotbugsXml.xml" \
@@ -124,7 +117,7 @@ jobs:
             --url "${{ secrets.DEFECT_DOJO_URL }}/api/v2/import-scan/" \
             --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
             --form "scan_type=ZAP Scan" \
-            --form "product_name=colmeia-jogos-api" \
+            --form "product_name=colmeia-talk" \
             --form "engagement_name=CI Build ZAP Scan " \
             --form "test_title=ZAP Scan - ${{ github.run_id }}" \
             --form "file=@${{ github.workspace }}/report_xml.xml" \
