@@ -20,7 +20,7 @@ jobs:
         env:
           POSTGRES_USER: colmeia
           POSTGRES_PASSWORD: colmeia
-          POSTGRES_DB: db
+          POSTGRES_DB: app
         # Opções para garantir que o serviço esteja pronto antes dos passos começarem
         options: >-
           --health-cmd pg_isready
