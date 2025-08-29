@@ -78,32 +78,32 @@ jobs:
             --form "file=@${{ github.workspace }}/trivy-results.json" \
             --form "auto_create_context=true"
 
-  deploy:
-    name: Deploy no Docker Swarm
-    runs-on: ubuntu-latest
-    needs:
-      - build
-      - scanner-imagem
+  # deploy:
+  #   name: Deploy no Docker Swarm
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - build
+  #     - scanner-imagem
 
-    steps:
-      - name: Checkout do repositório
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout do repositório
+  #       uses: actions/checkout@v4
 
-      - name: Configurar Chave SSH
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ vars.BASTION_HOST }} >> ~/.ssh/known_hosts
+  #     - name: Configurar Chave SSH
+  #       run: |
+  #         mkdir -p ~/.ssh
+  #         chmod 700 ~/.ssh
+  #         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+  #         chmod 600 ~/.ssh/id_rsa
+  #         ssh-keyscan -H ${{ vars.BASTION_HOST }} >> ~/.ssh/known_hosts
 
-      # 3. Executa o deploy no Swarm via SSH
-      - name: Deploy no Swarm
-        run: |
-          ssh admin@${{ vars.BASTION_HOST }} <<EOF
-            cd projetos-colmeia/jogos/back
-            sed -i "s|${{ secrets.REGISTRY_IMAGE }}:.*|${{ secrets.REGISTRY_IMAGE }}:${{ github.sha }}|g" docker-compose.yml          
-            docker pull ${{ secrets.REGISTRY_IMAGE }}:${{ github.sha }}          
-            docker stack deploy --with-registry-auth -c docker-compose.yml jogos-back
-            docker service ls
-          EOF
+  #     # 3. Executa o deploy no Swarm via SSH
+  #     - name: Deploy no Swarm
+  #       run: |
+  #         ssh admin@${{ vars.BASTION_HOST }} <<EOF
+  #           cd projetos-colmeia/jogos/back
+  #           sed -i "s|${{ secrets.REGISTRY_IMAGE }}:.*|${{ secrets.REGISTRY_IMAGE }}:${{ github.sha }}|g" docker-compose.yml          
+  #           docker pull ${{ secrets.REGISTRY_IMAGE }}:${{ github.sha }}          
+  #           docker stack deploy --with-registry-auth -c docker-compose.yml jogos-back
+  #           docker service ls
+  #         EOF
