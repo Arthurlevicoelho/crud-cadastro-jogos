@@ -130,7 +130,7 @@ jobs:
         with:
           name: security-reports
           path: |
-            target/dependency-check-report.xml
-            target/spotbugsXml.xml
+            # target/dependency-check-report.xml
+            # target/spotbugsXml.xml
             zap_report.xml
             zap_report.html
