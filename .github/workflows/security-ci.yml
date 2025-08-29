@@ -106,6 +106,8 @@ jobs:
 
       - name: 9. Executar o Scan DAST com OWASP ZAP
         uses: zaproxy/action-api-scan@v0.5.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           target: 'http://localhost:8080/v3/api-docs'
           format: 'openapi'
