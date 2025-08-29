@@ -110,6 +110,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: 'http://localhost:8080/v3/api-docs'
           allow_issue_writing: false
+          cmd_options: '-x report_xml.xml'
           format: 'openapi'
           
 
@@ -123,7 +124,7 @@ jobs:
             --form "scan_type=ZAP Scan" \
             --form "product_name=colmeia-jogos-api" \
             --form "engagement_name=CI Build ZAP Scan ${{ github.run_id }}" \
-            --form "file=@${{ github.workspace }}/report_json.json" \
+            --form "file=@${{ github.workspace }}/report_xml.xml" \
             --form "auto_create_context=true"
 
       # - name: 11. Carregar Artefatos de Relatório
