@@ -121,7 +121,7 @@ jobs:
             --form "scan_type=ZAP Scan" \
             --form "product_name=colmeia-jogos-api" \
             --form "engagement_name=CI Build ZAP Scan ${{ github.run_id }}" \
-            --form "file=@${{ github.workspace }}/zap_report.xml"
+            --form "file=@${{ github.workspace }}/report_json.json" \
             --form "auto_create_context=true"
 
       - name: 11. Carregar Artefatos de Relatório
@@ -132,5 +132,6 @@ jobs:
           path: |
             # target/dependency-check-report.xml
             # target/spotbugsXml.xml
-            zap_report.xml
-            zap_report.html
+            report_html.html 
+            report_md.md     
+            report_json.json 
