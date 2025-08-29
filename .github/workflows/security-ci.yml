@@ -105,7 +105,7 @@ jobs:
           echo "API iniciada com sucesso!"
 
       - name: 9. Executar o Scan DAST com OWASP ZAP
-        uses: zaproxy/action-api-scan@v0.5.0
+        uses: zaproxy/action-api-scan@v0.9.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: 'http://localhost:8080/v3/api-docs'
@@ -126,13 +126,13 @@ jobs:
             --form "file=@${{ github.workspace }}/report_json.json" \
             --form "auto_create_context=true"
 
-      - name: 11. Carregar Artefatos de Relatório
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: security-reports
-          path: |
-            # target/dependency-check-report.xml
-            # target/spotbugsXml.xml
-            zap_scan
+      # - name: 11. Carregar Artefatos de Relatório
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: security-reports
+      #     path: |
+      #       # target/dependency-check-report.xml
+      #       # target/spotbugsXml.xml
+      #       zap_scan
     
