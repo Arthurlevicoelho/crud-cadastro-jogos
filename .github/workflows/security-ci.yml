@@ -28,41 +28,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: 4. Configurar Cache do Sonar
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: 5. Executar Análises de Segurança e Gerar Relatórios
+      - name: 4. Executar Análises de Segurança e Gerar Relatórios
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mvn -B verify \
             org.owasp:dependency-check-maven:aggregate \
-            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=api \
-            -Dsonar.projectName='api' \
-            -DskipTests 
-
-
-      - name: 6. Iniciar a API para o Teste Dinâmico (DAST)
-        run: mvn spring-boot:run &
-
-      - name: 7. Aguardar a API Iniciar
-        run: sleep 45 # Aumentei o tempo para garantir que a API esteja pronta
-
-      - name: 8. Executar o Scan DAST com OWASP ZAP
-        uses: zaproxy/action-api-scan@v0.5.0
-        with:
-          target: 'http://localhost:8080/v3/api-docs'
-          format: 'openapi'
-          report_formats: 'html,xml'
-
-      # --- INÍCIO DA INTEGRAÇÃO COM DEFECTDOJO ---
+            -DskipTests
 
       - name: 5. Enviar Relatório do Dependency-Check para o DefectDojo
         if: success()
@@ -90,7 +62,20 @@ jobs:
             --form "file=@${{ github.workspace }}/target/spotbugsXml.xml" \
             --form "auto_create_context=true"
 
-      - name: 11. Enviar Relatório do ZAP para o DefectDojo
+      - name: 7. Iniciar a API para o Teste Dinâmico (DAST)
+        run: mvn spring-boot:run &
+
+      - name: 8. Aguardar a API Iniciar
+        run: sleep 45
+
+      - name: 9. Executar o Scan DAST com OWASP ZAP
+        uses: zaproxy/action-api-scan@v0.5.0
+        with:
+          target: 'http://localhost:8080/v3/api-docs'
+          format: 'openapi'
+          report_formats: 'html,xml'
+
+      - name: 10. Enviar Relatório do ZAP para o DefectDojo
         if: success()
         run: |
           curl -X POST \
@@ -100,16 +85,16 @@ jobs:
             --form "scan_type=ZAP Scan" \
             --form "product_name=colmeia-jogos-api" \
             --form "engagement_name=CI Build ZAP Scan ${{ github.run_id }}" \
-            --form "file=@${{ github.workspace }}/zap_report.xml" \ # Arquivo XML gerado pelo ZAP
+            --form "file=@${{ github.workspace }}/zap_report.xml"
             --form "auto_create_context=true"
 
-      # Opcional: Você pode também fazer upload dos relatórios como artefatos
-      - name: 8. Carregar Artefatos de Relatório
-        if: always() # Executa mesmo se os passos anteriores falharem, para debug
+      - name: 11. Carregar Artefatos de Relatório
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: security-reports
           path: |
             target/dependency-check-report.xml
             target/spotbugsXml.xml
-            target/bom.xml
+            zap_report.xml
+            zap_report.html
