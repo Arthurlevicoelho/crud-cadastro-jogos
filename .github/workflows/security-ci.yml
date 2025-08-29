@@ -90,7 +90,7 @@ jobs:
           DB_URL: jdbc:postgresql://localhost:5432/app
           DB_USERNAME: colmeia
           DB_PASSWORD: colmeia
-        run: mvn spring-boot:run 
+        run: mvn spring-boot:run &
         
 
       - name: 8. Aguardar a API ficar disponível (Health Check)
