@@ -110,6 +110,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           target: 'http://localhost:8080/v3/api-docs'
+          allow_issue_writing: false
           format: 'openapi'
           
 
@@ -134,6 +135,4 @@ jobs:
           path: |
             # target/dependency-check-report.xml
             # target/spotbugsXml.xml
-            report_html.html 
-            report_md.md     
-            report_json.json 
+    
