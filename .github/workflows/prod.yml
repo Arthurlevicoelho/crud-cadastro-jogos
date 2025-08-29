@@ -73,7 +73,7 @@ jobs:
             --url "${{ secrets.DEFECT_DOJO_URL }}/api/v2/import-scan/" \
             --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
             --form "scan_type=Trivy Scan" \
-            --form "product_name=colmeia-jogos-api" \
+            --form "product_name=colmeia-talk" \
             --form "engagement_name=CI Build ${{ github.run_id }}" \
             --form "file=@${{ github.workspace }}/trivy-results.json" \
             --form "auto_create_context=true"
