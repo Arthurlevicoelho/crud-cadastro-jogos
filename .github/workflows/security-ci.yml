@@ -53,39 +53,39 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # - name: 4. Executar Análises de Segurança e Gerar Relatórios
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     mvn -B verify \
-      #       org.owasp:dependency-check-maven:aggregate \
-      #       -DskipTests
+      - name: 4. Executar Análises de Segurança e Gerar Relatórios
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mvn -B verify \
+            org.owasp:dependency-check-maven:aggregate \
+            -DskipTests
 
-      # - name: 5. Enviar Relatório do Dependency-Check para o DefectDojo
-      #   if: success()
-      #   run: |
-      #     curl -X POST \
-      #       --insecure \
-      #       --url "${{ secrets.DEFECT_DOJO_URL }}/api/v2/import-scan/" \
-      #       --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
-      #       --form "scan_type=Dependency Check Scan" \
-      #       --form "product_name=colmeia-jogos-api" \
-      #       --form "engagement_name=CI Build Dependency-Check ${{ github.run_id }}" \
-      #       --form "file=@${{ github.workspace }}/target/dependency-check-report.xml" \
-      #       --form "auto_create_context=true"
+      - name: 5. Enviar Relatório do Dependency-Check para o DefectDojo
+        if: success()
+        run: |
+          curl -X POST \
+            --insecure \
+            --url "${{ secrets.DEFECT_DOJO_URL }}/api/v2/import-scan/" \
+            --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
+            --form "scan_type=Dependency Check Scan" \
+            --form "product_name=colmeia-jogos-api" \
+            --form "engagement_name=CI Build Dependency-Check ${{ github.run_id }}" \
+            --form "file=@${{ github.workspace }}/target/dependency-check-report.xml" \
+            --form "auto_create_context=true"
 
-      # - name: 6. Enviar Relatório do SpotBugs para o DefectDojo
-      #   if: success()
-      #   run: |
-      #     curl -X POST \
-      #       --insecure \
-      #       --url "${{ secrets.DEFECT_DOJO_URL }}/api/v2/import-scan/" \
-      #       --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
-      #       --form "scan_type=SpotBugs Scan" \
-      #       --form "product_name=colmeia-jogos-api" \
-      #       --form "engagement_name=CI Build SpotBugs ${{ github.run_id }}" \
-      #       --form "file=@${{ github.workspace }}/target/spotbugsXml.xml" \
-      #       --form "auto_create_context=true"
+      - name: 6. Enviar Relatório do SpotBugs para o DefectDojo
+        if: success()
+        run: |
+          curl -X POST \
+            --insecure \
+            --url "${{ secrets.DEFECT_DOJO_URL }}/api/v2/import-scan/" \
+            --header "Authorization: Token ${{ secrets.DEFECT_DOJO_API_KEY }}" \
+            --form "scan_type=SpotBugs Scan" \
+            --form "product_name=colmeia-jogos-api" \
+            --form "engagement_name=CI Build SpotBugs ${{ github.run_id }}" \
+            --form "file=@${{ github.workspace }}/target/spotbugsXml.xml" \
+            --form "auto_create_context=true"
 
       - name: 7. Iniciar a API para o Teste Dinâmico (DAST)
         env:
